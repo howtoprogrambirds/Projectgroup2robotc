@@ -18,9 +18,11 @@ task main()
   int nSizeOfMessage;
   ubyte nRcvBuffer[kMaxSizeOfMessage];
 
+  string s;
+  
   while (true)
   {
-		string s = "";
+		
     nSizeOfMessage = cCmdMessageGetSize(INBOX);
 
     if (nSizeOfMessage > kMaxSizeOfMessage)
@@ -42,15 +44,21 @@ task main()
     	if(s == "LEFT"){
     		motor[LeftMotor] = -25;
     		motor[RightMotor] = 25;
+    		wait1Msec(2000);
+    		s = "C";
     	}
     	if(s == "RIGHT"){
     		motor[LeftMotor] = 25;
     		motor[RightMotor] = -25;
+    		wait1Msec(2000);
+    		s = "C";
     	}
-    	s = "";
+    	if(s == "C" ) {
+    	  motor[LeftMotor] = 0;
+    		motor[RightMotor] = 0;
+        }
     }
     wait1Msec(100);
-
   }
   return;
 }
