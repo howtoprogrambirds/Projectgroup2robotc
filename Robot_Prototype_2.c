@@ -1,39 +1,39 @@
-#pragma config(Sensor, S3,     BWSensor,       sensorLightActive) //de licht sensor word geconfigureerd.
-#pragma config(Motor,  motorB,          RightMotor,    tmotorNXT, PIDControl, driveRight, encoder) //MotorB word ingesteld als de rechter motor.
-#pragma config(Motor,  motorC,          LeftMotor,     tmotorNXT, PIDControl, driveLeft, encoder) // MotorC is de linker motor.
+#pragma config(Sensor, S3,     BWSensor,       sensorLightActive) //Configure light sensor.
+#pragma config(Motor,  motorB,          RightMotor,    tmotorNXT, PIDControl, driveRight, encoder) //Configure motorb as right motor.
+#pragma config(Motor,  motorC,          LeftMotor,     tmotorNXT, PIDControl, driveLeft, encoder) // configure motorc as left motor.
 #pragma platform(NXT)
 //---------------------------------------------------------------------------------------------------
 
-// Dit zijn variabele gedefineerd van de app die op sharepoint staat.
+// Define app variables.
 long nLastXmitTimeStamp = nPgmTime;
 long nDeltaTime         = 0;
 
 const int kMaxSizeOfMessage = 30;
 const int INBOX = 5;
-// Dit word gebruikt om de input van de app met bluetooth naar de robot te sturen.
+// These are used to send signals over bluetooth to the robot.
 //--------------------------------------------------------------------------------
 
-//De functie om de zwarte lijn te volgen word hier gemaakt.
+//Function to follow a black line is created here.
 void volg_lijn(){
 
-	if (SensorValue(BWSensor) < 45) { //als er een zwarte lijn wordt gedecteerd zet dan het rechter motortje aan.
-			motor[motorC] = 0;
-			motor[motorB] = 30;
+	if (SensorValue(BWSensor) < 45) { //If the lightsensor detects black right motor turns on
+		motor[motorC] = 0;
+		motor[motorB] = 30;
 	}
 	else {
-		motor[motorC] = 30; //als er niet een zwarte lijn word gedecteerd zet dan het linker motortje aan.
+		motor[motorC] = 30; //If the light sensor doesn't detect black left motor turns on.
 		motor[motorB] = 0;
 	}
 
-	//reset de motors naar 0 anders blijft de robot oneindig rondjes rijden.
+	//Turn motors off.
 	motor[motorC] = 0;
 	motor[motorB] = 0;
 }
 //-------------------------------------------------------------------------
 
-//De functie om een geluidje af te spelen.
+//Function to play a sound is created here.
 void sound_repeat() {
-	// Het geluidje dat wij hebben gekozen (het kortste geluidje).
+	// The sound we chose. (This is the shortest sound).
 	playSound(soundBlip);
 
 	return;
@@ -42,18 +42,18 @@ void sound_repeat() {
 
 task main()
 {
-	// Dit is van de app die we van sharepoint hebben gehaald.
+	// Variables from the app
 	TFileIOResult nBTCmdRdErrorStatus;
 	int nSizeOfMessage;
   	ubyte nRcvBuffer[kMaxSizeOfMessage];
 
   	string s;
-  	//Hierboven staan de variabelen van de app gedefineerd.
+  	//The variables are defined.
 //-----------------------------------------------------------------------------
   
   	while (true)
   	{
-		//Er wordt hier een string ontvangen van de app en die wordt op de display van de robot weergeven.
+		//The robot receives a string that the robot will desplay.
     		nSizeOfMessage = cCmdMessageGetSize(INBOX);
 
     		if (nSizeOfMessage > kMaxSizeOfMessage){
@@ -66,38 +66,38 @@ task main()
     			stringFromChars(s, (char *) nRcvBuffer);
     			displayCenteredBigTextLine(4, s);
 //---------------------------------------------------------------------------------------------------------------------------------------------------
-    			if(s == "UP"){ 					//Als de ontvangen string van de app "UP" is moet de robot naar voren bewegen.
-    				motor[LeftMotor] = 50;			//Het linker motortje gaat aan met 50% van het totale vermogen.
-    				motor[RightMotor] = 50;			//Het rechter motortje gaat aan met 50% van het totale vermogen.
+    			if(s == "UP"){ 					//If received string equals "UP" move robot forward.
+    				motor[LeftMotor] = 50;			
+    				motor[RightMotor] = 50;			//Turn on both motors with 50% power.
     			}//--------------------------------------------------------------------------------------------------------------------------
-    			if(s == "DOWN"){				//Als de ontvangen string van de app "DOWN" is moet de robot naar achteren rijden.
-    				motor[LeftMotor] = -50;			//Het linker motortje gaat met 50% van het vermogen in tegengestelde richting bewegen.
-    				motor[RightMotor] = -50;		//Het Rechter motortje gaat met 50% van het vermogen in tegengestelde richting bewegen.
+    			if(s == "DOWN"){				//If received string equals "DOWN" move robot backwards.
+    				motor[LeftMotor] = -50;			
+    				motor[RightMotor] = -50;		//Both motors turn on with 50% power in opposite direction.
 			}//--------------------------------------------------------------------------------------------------------------------------
-    			if(s == "LEFT"){				//Als de ontvangen string "LEFT" is moet de robot een kwartslag naar links draaien.
-    				motor[LeftMotor] = -23;			//Het linker motertje gaat met 23% van het vermogen in tegengestelde rirchting bewegen.
-    				motor[RightMotor] = 23;			//Het rechter motortje gaat aan met 23% van het totale vermogen.
-    				wait1Msec(800);				//Het stukje code hierboven moet 800 miliseconden worden uitgevoerd.
-    				s = "C";				//Nadat de robot heeft gedraaid word de string variable naar "C" gezet om de robot te stoppen.
+    			if(s == "LEFT"){				//If received string equals "LEFT" turn robot to the left.
+    				motor[LeftMotor] = -23;			
+    				motor[RightMotor] = 23;			//Left motor moves backwards while right motor moves forward at 23% power.
+    				wait1Msec(800);				//The robot has to turn for a total of 800 miliseconds.
+    				s = "C";				//Reset string to "C" to stop the robot
     			}//---------------------------------------------------------------------------------------------------------------------------
-    			if(s == "RIGHT"){				//Als de ontvangen string "RIGHT" is moet de robot naar rechts draaien.
+    			if(s == "RIGHT"){				//If the received string equals "RIGHT" turn the robot to the right.
     				motor[LeftMotor] = 23;
     				motor[RightMotor] = -23;
     				wait1Msec(800);
-    				s = "C";				//Het stuk code hierboven is hetzelfde als naar links sturen maar dan in de andere richting.
+    				s = "C";				//Same code as moving left, but now it moves in opposite direction.
     			}//----------------------------------------------------------------------------------------------------------------------------
-    			if(s == "C" ) {					//Als de ontvangen string "C" is dan moet de robot stoppen. (stilstaan)
-		    	  	motor[LeftMotor] = 0;			//Het linker motortje wordt uit gezet.
-    				motor[RightMotor] = 0;			//Het rechter motortje wordt uit gezet.
+    			if(s == "C" ) {					//If received string equals "C" stop the robot. (this is the break)
+		    	  	motor[LeftMotor] = 0;			
+    				motor[RightMotor] = 0;			//Both motors are turned off and the robot stops moving.
 			}//----------------------------------------------------------------------------------------------------------------------------
-        		if(s == "A"){					//Als de string "A" is moet de functie volg lijn worden uitgevoerd.
-       			 volg_lijn();					//Functie volg lijn wordt aangeroepen.
+        		if(s == "A"){					//If the received string equals "A" execute function: volg_lijn.
+       			 volg_lijn();					//Call function: volg_lijn.
 			}//----------------------------------------------------------------------------------------------------------------------------
 		}
-		if(motor[motorC] || motor[motorB]){			//Als 1 van de 2 motortjes aanstaat (of allebei)speel dan een geluidje af.
-      			sound_repeat();					//De functie sound_repeat om een geluidje af te spelen wordt aangeroepen.
+		if(motor[motorC] || motor[motorB]){			//If either motor (or both) is turned on, play a sound.
+      			sound_repeat();					//Call function: sound_repeat.
    	   }//------------------------------------------------------------------------------------------------------------------------------
-	wait1Msec(100);							//Wacht 100 miliseconden voor de volgende input van de app wordt ontvangen.
+	wait1Msec(100);							//Wait 100 miliseconds to receive a new command from app.
 	}
   return;
 }
