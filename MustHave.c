@@ -22,57 +22,57 @@ const int INBOX = 5;
 void forward(int speed);
 void RGBValue(string sColor);
 void searchLine(int speed, string sColor);
-const int speed = 10;
-int speed2 = 10;
+const int speed = 13;
+int speed2 = 13;
 bool stop = true;
 
 void RGBValue(string &sColor) {
 	  while (true) {
 	    switch (SensorValue[ColorSensor])
 	    {
-	      case BLACKCOLOR:    sColor = "Black";     return;
-	      case BLUECOLOR:     sColor = "Blue";      return;
-	      case GREENCOLOR:    sColor = "Green";     return;
-	      case YELLOWCOLOR:   sColor = "Yellow";    return;
-	      case REDCOLOR:      sColor = "Red";       return;
-	      case WHITECOLOR:    sColor = "White";     return;
-	      default:            sColor = "???";       return;
+	      case BLACKCOLOR:    sColor = "Black";     				return;
+	      case WHITECOLOR:    sColor = "White";     				return;
+	      default:            sColor = "Other Color";       return;
 			}
 		}
 }
-
-void slowDownStop() {
-	speed2 = 10;
-	for(int i = speed2; i < 1; i--) {
-	speed2--;
-	motor[LeftMotor] = speed2;
-  motor[RightMotor] = speed2;
-  wait1Msec(200);
+// slow down function so the robot does not stop abruptly
+bool slowDownStop() {
+	speed2 = 14;
+	for(int i = speed2; i > 0; i--) {
+		stop = false;
+		speed2--;
+		motor[LeftMotor] = speed2;
+	  motor[RightMotor] = speed2;
+	  wait1Msec(100);
 	}
 	motor[LeftMotor] = 0;
 	motor[RightMotor] = 0;
 	stop = true;
-	return;
+	return stop;
 }
-
-
 // function to drive the robot forwards, only gets called if he only detects non black light.
 void forward (int speed) {
 	motor[RightMotor] = speed;
 	motor[LeftMotor] = speed;
 	return;
 }
-
 // function to go left or right depending on which of the 2 sensor detects a black line.
 void searchLine(int speed, string sColor) {
 	while (true) {
 
+		if(SensorValue(SonarSensor) == 24)
+		{
+			 slowDownStop();
+		}
 		RGBValue(sColor);
 		if 	(SensorValue(sensorLeft) <= 45){
-			motor[RightMotor] = 40;
+			motor[RightMotor] = 30;
+			motor[LeftMotor] = 10;
 		}
 		if (sColor == "Black"){
-			motor[LeftMotor] = 40;
+			motor[LeftMotor] = 30;
+			motor[RightMotor] = 10;
 		}
 
 		if (SensorValue(sensorLeft) > 45 && (sColor != "Black")) {
@@ -81,42 +81,25 @@ void searchLine(int speed, string sColor) {
 	}
 }
 
-//-------------------------------------------------------------------------
-
-//Function to play a sound is created here.
-void sound_repeat() {
-	// The sound we chose. (This is the shortest sound).
-	playSound(soundBlip);
-	return;
-}
-//---------------------------------------------------------------------------
-
 task main()
 {
-
 	// Variables from the app
 	TFileIOResult nBTCmdRdErrorStatus;
 	int nSizeOfMessage;
-  	ubyte nRcvBuffer[kMaxSizeOfMessage];
-  	string s;
-  	//The variables are defined.
-//-----------------------------------------------------------------------------
-
-  	while (true)
-  	{
-
-  		if(SensorValue(SonarSensor) < 25)
+  ubyte nRcvBuffer[kMaxSizeOfMessage];
+  string s;
+  //The variables are defined.
+  while (true)
+  {
+  	nxtDisplayTextLine(3, "Sonar:%d", SensorValue[sonarSensor]);  // display "Sensor Value: ##"
+		wait1Msec(100);  // Wait 100 milliseconds to help display correctly
+  		if(SensorValue(SonarSensor) == 24)
 			{
-				  //nxtDisplayCenteredTextLine(3, "Sensor Value:%d", SensorValue[sonarSensor]);  // display "Sensor Value: ##"
-				  //wait1Msec(100);  // Wait 100 milliseconds to help display correctly
 			    slowDownStop();
 			}
-
 		//The robot receives a string that the robot will desplay.
     		nSizeOfMessage = cCmdMessageGetSize(INBOX);
 				string sColor;
-
-
 
 				if (stop == false) {
 						forward(speed);
@@ -124,10 +107,6 @@ task main()
 						if (SensorValue(sensorLeft) <= 45 || sColor == "Black")
 							searchLine(speed, sColor);
 				}
-
-
-
-
     		if (nSizeOfMessage > kMaxSizeOfMessage){
       			nSizeOfMessage = kMaxSizeOfMessage;
       		}
@@ -137,7 +116,7 @@ task main()
     			s = "";
     			stringFromChars(s, (char *) nRcvBuffer);
     			displayCenteredBigTextLine(4, s);
-//---------------------------------------------------------------------------------------------------------------------------------------------------
+
     			if(s == "UP"){ 					//If received string equals "UP" move robot forward.
     				motor[LeftMotor] = 30;
     				motor[RightMotor] = 30;			//Turn on both motors with 50% power.
@@ -166,11 +145,10 @@ task main()
         		if(s == "A"){					//If the received string equals "A" execute function: volg_lijn.
 							stop = false;
 					}//----------------------------------------------------------------------------------------------------------------------------
-
 					}
 		if(motor[motorC] || motor[motorB]){			//If either motor (or both) is turned on, play a sound.
-      			sound_repeat();					//Call function: sound_repeat.
-   	}//------------------------------------------------------------------------------------------------------------------------------
+      			playSound(soundBlip);           // Play a sound
+   	}
 	wait1Msec(100);							//Wait 100 miliseconds to receive a new command from app.
 	}
   return;
