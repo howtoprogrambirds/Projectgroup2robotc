@@ -50,7 +50,7 @@ task main()
   	string s;
   	//The variables are defined.
 //-----------------------------------------------------------------------------
-  
+
   	while (true)
   	{
 		//The robot receives a string that the robot will desplay.
@@ -67,15 +67,15 @@ task main()
     			displayCenteredBigTextLine(4, s);
 //---------------------------------------------------------------------------------------------------------------------------------------------------
     			if(s == "UP"){ 					//If received string equals "UP" move robot forward.
-    				motor[LeftMotor] = 50;			
+    				motor[LeftMotor] = 50;
     				motor[RightMotor] = 50;			//Turn on both motors with 50% power.
     			}//--------------------------------------------------------------------------------------------------------------------------
     			if(s == "DOWN"){				//If received string equals "DOWN" move robot backwards.
-    				motor[LeftMotor] = -50;			
+    				motor[LeftMotor] = -50;
     				motor[RightMotor] = -50;		//Both motors turn on with 50% power in opposite direction.
-			}//--------------------------------------------------------------------------------------------------------------------------
+					}//--------------------------------------------------------------------------------------------------------------------------
     			if(s == "LEFT"){				//If received string equals "LEFT" turn robot to the left.
-    				motor[LeftMotor] = -23;			
+    				motor[LeftMotor] = -23;
     				motor[RightMotor] = 23;			//Left motor moves backwards while right motor moves forward at 23% power.
     				wait1Msec(800);				//The robot has to turn for a total of 800 miliseconds.
     				s = "C";				//Reset string to "C" to stop the robot
@@ -87,16 +87,16 @@ task main()
     				s = "C";				//Same code as moving left, but now it moves in opposite direction.
     			}//----------------------------------------------------------------------------------------------------------------------------
     			if(s == "C" ) {					//If received string equals "C" stop the robot. (this is the break)
-		    	  	motor[LeftMotor] = 0;			
+		    	  	motor[LeftMotor] = 0;
     				motor[RightMotor] = 0;			//Both motors are turned off and the robot stops moving.
-			}//----------------------------------------------------------------------------------------------------------------------------
+					}//----------------------------------------------------------------------------------------------------------------------------
         		if(s == "A"){					//If the received string equals "A" execute function: volg_lijn.
        			 volg_lijn();					//Call function: volg_lijn.
-			}//----------------------------------------------------------------------------------------------------------------------------
+					}//----------------------------------------------------------------------------------------------------------------------------
 		}
 		if(motor[motorC] || motor[motorB]){			//If either motor (or both) is turned on, play a sound.
       			sound_repeat();					//Call function: sound_repeat.
-   	   }//------------------------------------------------------------------------------------------------------------------------------
+   	}//------------------------------------------------------------------------------------------------------------------------------
 	wait1Msec(100);							//Wait 100 miliseconds to receive a new command from app.
 	}
   return;
