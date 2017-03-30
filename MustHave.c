@@ -14,7 +14,7 @@ const int INBOX = 5;
 void forward(int speed);
 void RGBValue(string sColor);
 void searchLine(int speed, string sColor);
-bool slowDownStop();
+void slowDownStop();
 void stopObstacle();
 // variable definitions
 const int default_speed = 13;
@@ -27,12 +27,12 @@ void RGBValue(string &sColor) {
 	    {
 	      case BLACKCOLOR:    sColor = "Black";     		return;
 	      case WHITECOLOR:    sColor = "White";     		return;
-	      default:            sColor = "Other Color";       return;
+	      default:            sColor = "Other Color";   return;
 			}
 		}
 }
 // Slow down function so the robot does not stop abruptly
-bool slowDownStop() {
+void slowDownStop() {
 	for(int i = speed; i > 0; i--) {
 		speed--;
 		motor[LeftMotor] = speed;
@@ -43,11 +43,11 @@ bool slowDownStop() {
 	motor[RightMotor] = 0;
 	speed = 0;
 	stop = true;
-	return stop;
+	return;
 }
 // Slows down and stops in a smooth manner when obstacle is detected
 void stopObstacle() {
-	if (speed > 0) {
+	if (speed > 0 && stop==false) {
 		if(SensorValue(SonarSensor) < 24)
 		{
 			 slowDownStop();
@@ -59,6 +59,7 @@ void stopObstacle() {
 void forward (int speed) {
 	motor[RightMotor] = speed;
 	motor[LeftMotor] = speed;
+	stop = false;
 	return;
 }
 // function to go left or right depending on which of the 2 sensor detects a black line.
@@ -88,8 +89,8 @@ task main()
 	string s = "";
 	while (true)
 	{
-		nxtDisplayCenteredTextLine(1, "Sonar:%d", SensorValue[SonarSensor]);  // display "Sensor Value: ##"
-		wait1Msec(100);  // Wait 100 milliseconds to help display correctly
+		nxtDisplayCenteredTextLine(1, "Sonar: %d", SensorValue[SonarSensor]);  // display Sensor Value
+		//wait1Msec(100);  // Wait 100 milliseconds to help display correctly
 		stopObstacle();  // Stop slowly for obstacle
 		// The robot receives a string that the robot will desplay.
 		nSizeOfMessage = cCmdMessageGetSize(INBOX);
@@ -109,41 +110,41 @@ task main()
 			nRcvBuffer[nSizeOfMessage] = '\0';
 			stringFromChars(s, (char *) nRcvBuffer);
 			displayCenteredBigTextLine(4, s);
-			if(s == "UP"){ 							// If received string equals "UP" move robot forward.
+			if(s == "UP"){ 												// If received string equals "UP" move robot forward.
 				motor[LeftMotor] = 30;
-				motor[RightMotor] = 30;				// Turn on both motors with 50% power.
+				motor[RightMotor] = 30;							// Turn on both motors with 50% power.
 			}//---------------------------------------------------------------------------------------------------------------------------
-			else if(s == "DOWN"){					// If received string equals "DOWN" move robot backwards.
+			else if(s == "DOWN"){									// If received string equals "DOWN" move robot backwards.
 				motor[LeftMotor] = -30;
-				motor[RightMotor] = -30;			// Both motors turn on with 50% power in opposite direction.
-				}//-----------------------------------------------------------------------------------------------------------------------
-			else if(s == "LEFT"){					// If received string equals "LEFT" turn robot to the left.
+				motor[RightMotor] = -30;						// Both motors turn on with 50% power in opposite direction.
+			}//-----------------------------------------------------------------------------------------------------------------------
+			else if(s == "LEFT"){									// If received string equals "LEFT" turn robot to the left.
 				motor[LeftMotor] = -23;
-				motor[RightMotor] = 23;				// Left motor moves backwards while right motor moves forward at 23% power.
-				wait1Msec(800);						// The robot has to turn for a total of 800 miliseconds.
-				s = "C";							// Reset string to "C" to stop the robot
+				motor[RightMotor] = 23;							// Left motor moves backwards while right motor moves forward at 23% power.
+				wait1Msec(800);											// The robot has to turn for a total of 800 miliseconds.
+				s = "C";														// Reset string to "C" to stop the robot
 			}//---------------------------------------------------------------------------------------------------------------------------
-			else if(s == "RIGHT"){					// If the received string equals "RIGHT" turn the robot to the right.
+			else if(s == "RIGHT"){								// If the received string equals "RIGHT" turn the robot to the right.
 				motor[LeftMotor] = 23;
 				motor[RightMotor] = -23;
 				wait1Msec(800);
-				s = "C";							// Same code as moving left, but now it moves in opposite direction.
+				s = "C";														// Same code as moving left, but now it moves in opposite direction.
 			}//---------------------------------------------------------------------------------------------------------------------------
-			else if(s == "C" ) {					// If received string equals "C" stop the robot. (this is the break)
+			else if(s == "C" ) {									// If received string equals "C" stop the robot. (this is the break)
 				motor[LeftMotor] = 0;
-				motor[RightMotor] = 0;				// Both motors are turned off to stop robot from moving.
+				motor[RightMotor] = 0;							// Both motors are turned off to stop robot from moving.
 				stop = true;
 				speed = 0;
 			}//---------------------------------------------------------------------------------------------------------------------------
-			else if(s == "A"){						// If the received string equals "A" execute function: volg_lijn.
+			else if(s == "A"){										// If the received string equals "A" execute function: volg_lijn.
 				stop = false;
 				speed = default_speed;
 			}//---------------------------------------------------------------------------------------------------------------------------
 		}
 		if(motor[motorC] || motor[motorB]){			// If either motor (or both) is turned on, play a sound.
-			playSound(soundBlip);           		// Play a sound
+			playSound(soundBlip);           			// Play a sound
 		}
-		wait1Msec(100);								// Wait 100 miliseconds to receive a new command from app.
+		wait1Msec(100);													// Wait 100 miliseconds to receive a new command from app.
 	}
 	return;
 }
