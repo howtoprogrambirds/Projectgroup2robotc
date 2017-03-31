@@ -27,7 +27,7 @@ void RGBValue(string &sColor) {
 	    {
 	      case BLACKCOLOR:    sColor = "Black";     			return;
 	      case WHITECOLOR:    sColor = "White";     			return;
-	      default:            sColor = "Other Color";   	return;
+	      default:            sColor = "Other";   	return;
 			}
 		}
 }
@@ -47,7 +47,7 @@ void slowDownStop() {
 }
 // Slows down and stops in a smooth manner when obstacle is detected
 void stopObstacle() {
-	if (speed > 0 && stop==false) {
+	if (speed > 0) {
 		if(SensorValue(SonarSensor) < 24)
 		{
 			 slowDownStop();
@@ -68,37 +68,26 @@ void searchLine(int speed, string sColor) {
 		stopObstacle();  // stop slowly for obstacle if there is an object within range
 		RGBValue(sColor);
 		// if left sensor detects black and right sensor detects white turn left
-		if 	(SensorValue(LeftSensor) > 30 && SensorValue(LeftSensor) <= 45 && sColor != "Black"){
-			motor[RightMotor] = 15;
-			motor[LeftMotor] = 8;
-		}
-		if 	(SensorValue(LeftSensor) > 15 && SensorValue(LeftSensor) <= 30 && sColor != "Black"){
-			motor[RightMotor] = 30;
-			motor[LeftMotor] = 6;
-		}
-		if 	(SensorValue(LeftSensor) <= 15 && sColor != "Black"){
-			motor[RightMotor] = 45;
-			motor[LeftMotor] = 4;
-		}
-		// if right sensor detects black and left sensor detects white turn right
-		if (SensorValue(LeftSensor) > 45 && SensorValue(LeftSensor) <= 60 && sColor == "Black"){
-			motor[LeftMotor] = 15;
-			motor[RightMotor] = 8;
-		}
-		if (SensorValue(LeftSensor) > 60 && SensorValue(LeftSensor) <= 75 && sColor == "Black"){
-			motor[LeftMotor] = 30;
-			motor[RightMotor] = 6;
-		}
-		if (SensorValue(LeftSensor) > 75 && sColor == "Black"){
-			motor[LeftMotor] = 45;
-			motor[RightMotor] = 4;
+		if 	(SensorValue(LeftSensor) <= 45 && sColor != "Black"){
+			motor[RightMotor] = 40;
+			motor[LeftMotor] = 0;
 		}
 
+		// if right sensor detects black and left sensor detects white turn right
+		if (SensorValue(LeftSensor) > 45 && sColor == "Black"){
+			motor[LeftMotor] = 40;
+			motor[RightMotor] = 0;
+		}
+
+		if (sColor == "Other"){
+			motor[LeftMotor] = default_speed;
+			motor[RightMotor] = default_speed;
+		}
 
 		if (SensorValue(LeftSensor) <= 45 && sColor == "Black"){  // if both sensors are black stop slowly (intersection)
 			slowDownStop();  // stop slowly
 		}
-		if (SensorValue(LeftSensor) > 45 && (sColor != "Black")) { // if both sensors are "white", return to forward movement
+		if (SensorValue(LeftSensor) > 45 && sColor != "Black") { // if both sensors are "white", return to forward movement
 			return;
 		}
 	}
@@ -109,7 +98,7 @@ task main()
 	TFileIOResult nBTCmdRdErrorStatus;
 	int nSizeOfMessage;
 	ubyte nRcvBuffer[kMaxSizeOfMessage];
-	string s = "";
+	string s;
 	while (true)
 	{
 		nxtDisplayCenteredTextLine(0, "Sonar: %d", SensorValue[SonarSensor]);  	// display Sonar Distance of Obstacle
@@ -133,6 +122,7 @@ task main()
 		if (nSizeOfMessage > 0){
 			nBTCmdRdErrorStatus = cCmdMessageRead(nRcvBuffer, nSizeOfMessage, INBOX);
 			nRcvBuffer[nSizeOfMessage] = '\0';
+			s = "";
 			stringFromChars(s, (char *) nRcvBuffer);
 			displayCenteredBigTextLine(5, s);
 			if(s == "UP"){ 											// If received string equals "UP" move robot forward.
