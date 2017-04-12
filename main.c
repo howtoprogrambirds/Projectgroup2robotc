@@ -13,8 +13,8 @@ const int kMaxSizeOfMessage = 30;
 const int INBOX = 5;
 
 // global variable definitions
-const int default_speed = 16;
-int speed = default_speed;
+const int default_speed = 18;
+int speed = 0;
 bool stop = true;
 
 // function declarations
@@ -38,7 +38,7 @@ void slowDownStop() {
 // Slows down and stops in a smooth manner when obstacle is detected
 void stopObstacle() {
 	if (speed > 0 && stop == false) {
-		if(SensorValue(SonarSensor) < 24)
+		if(SensorValue(SonarSensor) < 12)
 		{
 			 slowDownStop();
 		}
@@ -59,12 +59,12 @@ void searchLine(int speed, float sumL, float sumR) {
 	while (true) {
 		stopObstacle();  // stop slowly for obstacle if there is an object within range
 
-		if(sumL < 0.5) {
-			motor[RightMotor] = speed + (40*sumL);
+		if(sumL < 0.63) {
+			motor[RightMotor] = speed + (60*sumL);
 			motor[LeftMotor] = 0;
-		} else if (sumR < 0.5){
+		} else if (sumR < 0.68){
 			motor[RightMotor] = 0;
-			motor[LeftMotor] = speed + (40*sumR);
+			motor[LeftMotor] = speed + (60*sumR);
 		}
 		return;
 	}
@@ -104,11 +104,11 @@ task main() {
 		if (stop == false) {
 			forward(speed);
 
-			if (sumL < 0.5 || sumR < 0.5) {
+			if (sumL < 0.63 || sumR < 0.68) {
 				searchLine(speed, sumL, sumR);
 			}
 
-			if (sumL < 0.5 && sumR < 0.5){  // if both sensors are black stop slowly (intersection)
+			if (sumL < 0.63 && sumR < 0.68){  // if both sensors are black stop slowly (intersection)
 				slowDownStop();  // stop slowly
 			}
 		}
