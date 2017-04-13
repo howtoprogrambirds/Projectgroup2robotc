@@ -13,7 +13,7 @@ const int kMaxSizeOfMessage = 30;
 const int INBOX = 5;
 
 // global variable definitions
-const int default_speed = 22;
+const int default_speed = 24;
 int speed = 0;
 bool stop = true;
 
@@ -60,11 +60,11 @@ void searchLine(int speed, float sumL, float sumR) {
 		stopObstacle();  // stop slowly for obstacle if there is an object within range
 
 		if(sumL < 0.5) {
-			motor[RightMotor] = speed + (46*sumL);
+			motor[RightMotor] = speed + (48*sumL);
 			motor[LeftMotor] = 0;
 		} else if (sumR < 0.5){
 			motor[RightMotor] = 0;
-			motor[LeftMotor] = speed + (46*sumR);
+			motor[LeftMotor] = speed + (48*sumR);
 		}
 		return;
 	}
@@ -152,8 +152,8 @@ task main() {
 				stop = false;
 			}//---------------------------------------------------------------------------------------------------------------------------
 			if(s == "FIRE"){												// If the received string equals "FIRE" turn on arm motor.
-				motor[FireMotor] = 120;
-				wait1Msec(180);
+				motor[FireMotor] = 60;
+				wait1Msec(200);
 				motor[FireMotor] = 0;
 
 			}//---------------------------------------------------------------------------------------------------------------------------
